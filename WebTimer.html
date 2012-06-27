@@ -3,9 +3,25 @@
     <title>Web Timer</title>
   </head>
   <body>
-    <canvas id="canvas" width="800" height="500" style="border:0px solid black;"></canvas>
+    <canvas id="canvas" style="border:0px solid black;"></canvas>
     <script type="text/javascript">
       (function() {
+        var args = location.href.split("?")[1];
+        var sec = 5 * 60
+        if (args != undefined) {
+            var arg_list = args.split("&");
+            for(i in arg_list) {
+                arg = arg_list[i].split("=");
+                if (arg[0] == 'sec') {
+                    sec = arg[1]
+                }
+            }
+        }
+
+        var canvas = document.getElementById('canvas')
+        canvas.width = window.innerWidth - 50;
+        canvas.height = window.innerHeight - 50;
+
         var audio = new Audio("GONG.wav");
         var isFirst = true
         var start = null
@@ -13,19 +29,16 @@
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
 
-        var WIDTH = 800;
-        var HEIGHT = 500;
-        var INIT_X = 10;
-        var INIT_Y = 350;
-        var BAR_WIDTH = WIDTH - 10 * 2;
-        var MAX = 5 * 60 * 10 
+        var WIDTH = window.innerWidth;
+        var HEIGHT = window.innerHeight;
+        var MAX = sec * 10 
 
-        ctx.font = "256px sans-serif";  
+        size = WIDTH / 3;
+        ctx.font = size + "px sans-serif";  
         var metrics = ctx.measureText("00:00");
 
         var initFontX = (WIDTH - metrics.width) / 2;
-        var initFontY = INIT_Y - 30;
-        var currentX = WIDTH - INIT_X * 2;
+        var initFontY = (HEIGHT - (metrics.width / 5)) / 2 + (metrics.width / 5)
 
         setInterval(function() {
           ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -51,19 +64,6 @@
           ctx.shadowOffsetX = 2;  
           ctx.shadowOffsetY = 2;  
           ctx.shadowBlur = 2;  
-          if (diffSec > 0) {
-              ctx.strokeStyle = "#0000FF";
-              ctx.shadowColor = "rgba(0, 0, 255, 0.5)";  
-              currentX = BAR_WIDTH / MAX * diffSec;
-          } else {
-              ctx.strokeStyle = "#FF0000";
-              ctx.shadowColor = "rgba(255, 0, 0, 0.5)";  
-              currentX = BAR_WIDTH;
-          }
-          ctx.moveTo(INIT_X, INIT_Y);
-          ctx.lineTo(INIT_X + currentX, INIT_Y);
-          ctx.closePath();
-          ctx.stroke();
 
           if (diffSec > 0) {
               ctx.fillStyle = "Black";
