@@ -1,5 +1,6 @@
 Web Timer
 =========
+
 A simple timer working on your browser.
 
 Usage
