@@ -15,7 +15,7 @@ Special thanks to
 -----------------
 
 - Crypton Future Media, Inc.
--- http://blog.crypton.co.jp/mp/2008/02/free_sample_1.html
+  - http://blog.crypton.co.jp/mp/2008/02/free_sample_1.html
 
 License
 -------
