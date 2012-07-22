@@ -5,6 +5,11 @@ function updateCanvasSize() {
   canvas.height = window.innerHeight;
 }
 
+function getCanvasContext() {
+  var canvas = document.getElementById("canvas");
+  return canvas.getContext("2d");
+}
+
 function parseGetParameters() {
   var args = location.href.split("?")[1];
   var params = {};
@@ -18,42 +23,51 @@ function parseGetParameters() {
   return params;
 }
 
-function getCanvasContext() {
-  var canvas = document.getElementById("canvas");
-  return canvas.getContext("2d");
+function Timer(sec) {
+  this.msec = sec * 1000;
+  this.start = new Date();
+  console.log("start = " + this.start);
+
+  this.getTime = function() {
+    var now = new Date();
+    return this.msec - Math.floor(now.getTime() - this.start.getTime());
+  }
+
+  this.getIntAbsTime = function() {
+    return Math.abs(Math.ceil(this.getTime() / 1000));
+  }
+
+  this.getMin = function() {
+    return Math.floor((this.getIntAbsTime() / 60) % 60);
+  }
+
+  this.getSec = function() {
+    return Math.floor(this.getIntAbsTime() % 60);
+  }
+
+  this.getTimeString = function() {
+    return ("0" + this.getMin()).substr(-2) + ":" + ("0" + this.getSec()).substr(-2);
+  }
+
+  this.getTimeStringMetrics = function(ctx) {
+    return ctx.measureText("00:00");
+  }
 }
-
-
-function convertTime(msec) {
-  var delta = Math.abs(Math.ceil(msec / 1000));
-  var min_part = Math.floor((delta / 60) % 60);
-  var sec_part = Math.floor(delta % 60);
-  return [min_part, sec_part]
-}
-
-function getTimeString(t) {
-  return ("0" + t[0]).substr(-2) + ":" + ("0" + t[1]).substr(-2);
-}
-
-function getTimeStringMetrics(ctx) {
-  return ctx.measureText("00:00");
-}
-
 
 (function() {
   updateCanvasSize();
 
   var ctx = getCanvasContext();
 
-  var params = parseGetParameters()
+  var params = parseGetParameters();
+  var sec = 'sec' in params ? params['sec'] : 5 * 60;
 
-  var TIME_MSEC = 'sec' in params ? params['sec'] * 1000 : 5 * 60 * 1000;
   var WIDTH = window.innerWidth;
   var HEIGHT = window.innerHeight;
 
   var audio = new Audio("GONG.wav");
-  var isFirst = true
-  var start = null
+  var isFirst = true;
+  var timer = new Timer(sec);
 
   size = WIDTH / 3;
   ctx.font = size + "px sans-serif";
@@ -62,20 +76,16 @@ function getTimeStringMetrics(ctx) {
   ctx.shadowOffsetY = 2;
   ctx.shadowBlur = 2;
 
-  var metrics = getTimeStringMetrics(ctx)
+  var metrics = timer.getTimeStringMetrics(ctx);
 
   var initFontX = (WIDTH - metrics.width) / 2;
-  var initFontY = (HEIGHT - (metrics.width / 5)) / 2 + (metrics.width / 5)
+  var initFontY = (HEIGHT - (metrics.width / 5)) / 2 + (metrics.width / 5);
 
   setInterval(function() {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-    var now = new Date();
-
-    if (start == null)
-      start = now;
-
-    var remainingTime = TIME_MSEC - Math.floor(now.getTime() - start.getTime())
+    var remainingTime = timer.getTime();
+//    console.log("remainingTime = " + remainingTime);
 
     if (remainingTime < 0 && isFirst) {
       audio.play();
@@ -89,6 +99,6 @@ function getTimeStringMetrics(ctx) {
       ctx.fillStyle = "Red";
       ctx.shadowColor = "rgba(255, 0, 0, 0.5)";
     }
-    ctx.fillText(getTimeString(convertTime(remainingTime)), initFontX, initFontY);
+    ctx.fillText(timer.getTimeString(), initFontX, initFontY);
   }, 100);
 })();
