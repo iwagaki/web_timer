@@ -24,8 +24,8 @@ function getCanvasContext() {
 }
 
 
-function convertTime(sec) {
-  var delta = Math.abs(Math.ceil(sec));
+function convertTime(msec) {
+  var delta = Math.abs(Math.ceil(msec / 1000));
   var min_part = Math.floor((delta / 60) % 60);
   var sec_part = Math.floor(delta % 60);
   return [min_part, sec_part]
@@ -43,18 +43,17 @@ function getTimeStringMetrics(ctx) {
 (function() {
   updateCanvasSize();
 
+  var ctx = getCanvasContext();
+
   var params = parseGetParameters()
-  var sec = 'sec' in params ? params['sec'] : 5 * 60;
+
+  var TIME_MSEC = 'sec' in params ? params['sec'] * 1000 : 5 * 60 * 1000;
+  var WIDTH = window.innerWidth;
+  var HEIGHT = window.innerHeight;
 
   var audio = new Audio("GONG.wav");
   var isFirst = true
   var start = null
-
-  var ctx = getCanvasContext();
-
-  var WIDTH = window.innerWidth;
-  var HEIGHT = window.innerHeight;
-  var MAX = sec * 10
 
   size = WIDTH / 3;
   ctx.font = size + "px sans-serif";
@@ -76,20 +75,20 @@ function getTimeStringMetrics(ctx) {
     if (start == null)
       start = now;
 
-    var diffSec = MAX - Math.floor(now.getTime() - start.getTime()) / 100
+    var remainingTime = TIME_MSEC - Math.floor(now.getTime() - start.getTime())
 
-    if (diffSec < 0 && isFirst) {
+    if (remainingTime < 0 && isFirst) {
       audio.play();
       isFirst = false;
     }
 
-    if (diffSec > 0) {
+    if (remainingTime > 0) {
       ctx.fillStyle = "Black";
       ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
     } else {
       ctx.fillStyle = "Red";
       ctx.shadowColor = "rgba(255, 0, 0, 0.5)";
     }
-    ctx.fillText(getTimeString(convertTime(diffSec / 10)), initFontX, initFontY);
+    ctx.fillText(getTimeString(convertTime(remainingTime)), initFontX, initFontY);
   }, 100);
 })();
