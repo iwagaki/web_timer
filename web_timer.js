@@ -26,7 +26,6 @@ function parseGetParameters() {
 function Timer(sec) {
   this.msec = sec * 1000;
   this.start = new Date();
-  console.log("start = " + this.start);
 
   this.getTime = function() {
     var now = new Date();
